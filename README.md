@@ -3,7 +3,7 @@ Nhóm 1: Trần Tiến Phát - Nguyễn Văn Hoàng
 1.Tạo cụm Kubernetes
 Chuẩn bị
 Nhóm sử dụng dịch vụ Amazon EC2 để tiến hành tạo 3 máy ảo giống nhau
-<img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146010228-dbcf9d36-a00c-4567-8230-50d640d6747e.png">
+<img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146011162-f171f5c1-6a14-4843-9a89-eabab427687e.png">
 
 Nền tảng: Cloud9Ubuntu
  
@@ -11,9 +11,11 @@ Loại máy EC2: t3.small
 CPU: 02 vCPU
 RAM: 02 GB
 Khi dùng lệnh “ kubeadm join ” nút công nhân không thể tham gia vào nút chính. Nguyên nhân gốc rễ là cổng 6443, cổng này đã bị chặn trong nhóm bảo mật của AWS.
+
 <img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146010269-9fa3b829-47e9-4e02-aff6-9cc4f5efb8ec.png">
 
 Vì thế em vào Security Groups thêm 1 rule với type: All TCP ( giải quyết lỗi )
+
 <img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146010288-94d17476-6ac7-4ee7-8c84-785b4e02bda6.png">
 
 1.1Mô hình
@@ -36,6 +38,7 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get update ( cập nhật các gói )
 Install Docker
 sudo apt-get install -y docker-ce
+
 <img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146010363-3739a52e-411c-4173-b58e-5d564ef59552.png">
 
 Cài đặt kubelet, kubeadm, kubectl
@@ -82,6 +85,7 @@ sudo cp -i /etc/kubernetes/admin.conf $ HOME / .kube / config
 sudo chown $ (id -u): $ (id -g) $ HOME / .kube / config
 Áp dụng lớp phủ mạng CNI Flannel
 sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
 <img width="416" alt="image" src="https://user-images.githubusercontent.com/93108816/146010386-41b9d672-88ff-4fe4-9bc7-ced012e05681.png">
 
 Trên Node1 và Node 2
@@ -89,6 +93,7 @@ Các nút công nhân tham gia vào cụm
 sudo kubeadm join 172.31.1.252:6443 --token hr2sop.dhb716rb4smfyhad \ --discovery-token-ca-cert-hash sha256:fc9d64d8761f89bf0bd668e40e015b878cac5d722c3f1940efebcd3357bf6cda
 Kiểm tra các node trong Cluster được tạo
 kubectl get nodes
+
 <img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146010470-51815989-da44-4ee8-89bf-f9cbf2a62b7c.png">
 
 Hoàn thành thiết lập nút chính Kubernetes và nút công nhân trên EC2 của đám mây AWS.
@@ -102,6 +107,7 @@ Xem trạng thái triển khai
 kubectl get deployments
 Xem mô tả triển khai nginx
 kubectl describe deployment nginx
+
 <img width="416" alt="image" src="https://user-images.githubusercontent.com/93108816/146010496-d5c9b74c-04f2-467d-ba4d-240e641880fe.png">
 
 Xem các dịch vụ đang có
@@ -118,10 +124,12 @@ kubectl delete pod nginx-6799fc88d8-gb8zd
 Kiểm tra lại số pod
 kubectl get pods
 Thì thấy 1 pod nginx-6799fc88d8-gb8zd đã bị xóa và 1 pods mới nginx-6799fc88d8-qt529 được tạo ra sau 7s thay thế cho pod cũ nginx-6799fc88d8-gb8zd
+
 <img width="416" alt="image" src="https://user-images.githubusercontent.com/93108816/146010518-3393ebe3-3ee5-45f4-afe4-62436e0c60a9.png">
 
 Thực hiện thành công theo đúng như lí thuyết điển hình về Kubernets Cluster
 Truy cập web trên woker node
+
 <img width="416" alt="image" src="https://user-images.githubusercontent.com/93108816/146010553-44ab8ec7-a176-457d-8b18-31994cc21469.png">
 
 Mở trên browser 
@@ -131,11 +139,13 @@ Thì thấy không có IP Public nào tồn tại.
 Vấn đề: Vì hiện đang chạy triển khai này trên Máy ảo do nhà cung cấp đám mây công cộng cung cấp. Vì vậy, mặc dù không có giao diện cụ thể nào được chỉ định IP công cộng, nhưng nhà cung cấp máy ảo đã cấp một địa chỉ IP bên ngoài Ephemeral.
 Địa chỉ IP bên ngoài tạm thời là địa chỉ IP tạm thời vẫn được gắn vào máy ảo cho đến khi phiên bản ảo bị dừng. Khi phiên bản ảo được khởi động lại, một IP bên ngoài mới sẽ được chỉ định. Về cơ bản, đó là một cách đơn giản để các nhà cung cấp dịch vụ tận dụng các IP công cộng nhàn rỗi.
 Thách thức ở đây, ngoài thực tế là IP công cộng không phải là tĩnh, IP công cộng Ephemeral chỉ đơn giản là một phần mở rộng (hoặc proxy) của IP Riêng và vì lý do đó, dịch vụ sẽ chỉ được truy cập trên cổng 31186. Điều đó có nghĩa là dịch vụ sẽ được truy cập trên URL, đó là http://ec2-3-220-164-225.compute-1.amazonaws.com:31186/, kiểm tra trình duyệt của mình, em đã thấy trang chào mừng. 
+
 <img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146010750-da039553-f63a-4169-8a53-a2c1c76cea5c.png">
 
 Em đã triển khai thành công NGINX trên cụm Kubernetes 3 nút của chúng em.
 http://ec2-3-220-164-225.compute-1.amazonaws.com:31186/
 Vì mỗi lần reset thì sẽ thay đổi Public IPv4 DNS nên sẽ k còn dùng được nữa.
+
 <img width="206" alt="image" src="https://user-images.githubusercontent.com/93108816/146010959-49dfcda6-f880-4333-ab31-3fcf41730ee9.png">
 
  
