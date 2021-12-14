@@ -1,8 +1,10 @@
 # Nhom1Cloud
 Nhóm 1: Trần Tiến Phát - Nguyễn Văn Hoàng
+
 1.Tạo cụm Kubernetes
 Chuẩn bị
 Nhóm sử dụng dịch vụ Amazon EC2 để tiến hành tạo 3 máy ảo giống nhau
+
 <img width="415" alt="image" src="https://user-images.githubusercontent.com/93108816/146011162-f171f5c1-6a14-4843-9a89-eabab427687e.png">
 
 Nền tảng: Cloud9Ubuntu
